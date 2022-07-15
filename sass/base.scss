@@ -1,0 +1,165 @@
+:root {
+    --odd-color: #a2d149;
+    --even-color: #aad751;
+    --odd-clicked-color: #d7b899;
+    --even--clicked-color: #e5c29f;
+    --odd-hover-color: #dcf7ab;
+    --even-hover-color: #dce7c6;
+}
+
+html {
+    font-size: 62.5%;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    background-color: #faf8ef;
+    width: 100vw;
+    overflow: hidden;
+    height: 100vh;
+    position: relative;
+}
+
+.game {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    height: 50vh;
+    width: 50vh;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    position: relative;
+    z-index: 1;
+    margin-top: calc((100vh - 50vh) / 2);
+    margin-inline: auto;
+    // overflow: hidden;
+
+    &__cell {
+        --border-initial: #8fcf53;
+        --border-changed: #769b32;
+
+        --color-text: black;
+
+        --border-first: inset 0 4px 1px -2px var(--border-initial);
+
+        box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.18),
+            inset 0 4px 1px -2px var(--border-initial), inset -4px 0 1px -2px var(--border-initial),
+            inset 0 -4px 1px -2px var(--border-initial), inset 4px 0 1px -2px var(--border-initial);
+
+        color: var(--color-text);
+        width: 100%;
+        height: 100%;
+
+        font-size: 2rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        // overflow: hidden;
+
+        &--flag {
+            font-size: 1.7rem;
+            position: absolute;
+            opacity: 0.2;
+            top: 100%;
+            transition: all 0.3s;
+            transform: scale(1) rotate(0deg) translate(-50%, -50%);
+            left: 50%;
+        }
+
+        &--animation::before {
+            content: "";
+            position: absolute;
+            background-color: var(--odd-color);
+            width: 100%;
+            height: 100%;
+            animation: pos 0.4s forwards cubic-bezier(0.18, -1.56, 0.77, 0.88), pop 0.9s forwards;
+        }
+
+        &--odd {
+            background-color: var(--odd-color);
+
+            &.clicked {
+                background-color: var(--odd-clicked-color);
+                box-shadow: none;
+            }
+        }
+        &--even {
+            background-color: var(--even-color);
+
+            &.clicked {
+                background-color: var(--even--clicked-color);
+                box-shadow: none;
+            }
+        }
+    }
+}
+
+.overlay {
+    border: none;
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        box-shadow: inset 0px 0px 0px 500px rgba(248, 250, 159, 0.45);
+        z-index: 1000;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.h1 {
+    font-size: 5rem;
+    color: red;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-block;
+    padding: 20rem 20rem;
+    background-color: blue;
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes pos {
+    0% {
+        top: 0;
+    }
+
+    100% {
+        top: 100%;
+    }
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(0.2);
+        opacity: 0;
+        top: 100%;
+    }
+}

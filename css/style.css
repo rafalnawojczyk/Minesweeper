@@ -1,0 +1,107 @@
+:root {
+  --odd-color: #a2d149;
+  --even-color: #aad751;
+  --odd-clicked-color: #d7b899;
+  --even--clicked-color: #e5c29f;
+  --odd-hover-color: #dcf7ab;
+  --even-hover-color: #dce7c6; }
+
+html {
+  font-size: 62.5%;
+  box-sizing: border-box; }
+
+body {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0; }
+
+.container {
+  background-color: #faf8ef;
+  width: 100vw;
+  overflow: hidden;
+  height: 100vh;
+  position: relative; }
+
+.game {
+  height: 50vh;
+  width: 50vh;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  position: relative;
+  z-index: 1;
+  margin-top: calc((100vh - 50vh) / 2);
+  margin-inline: auto;
+  overflow: hidden; }
+  .game__cell {
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.18);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 2px solid var(--odd-color); }
+    .game__cell--flag {
+      position: absolute;
+      opacity: 0.2;
+      top: 100%;
+      transition: all 0.3s;
+      transform: scale(1) rotate(0deg);
+      left: 0; }
+    .game__cell--animation::before {
+      content: "";
+      position: absolute;
+      background-color: var(--odd-color);
+      width: 100%;
+      height: 100%;
+      animation: pos 0.4s forwards cubic-bezier(0.18, -1.56, 0.77, 0.88), pop 0.9s forwards; }
+    .game__cell--odd {
+      background-color: var(--odd-color); }
+      .game__cell--odd.clicked {
+        background-color: var(--odd-clicked-color);
+        border: none !important; }
+        .game__cell--odd.clicked:hover {
+          background-color: var(--odd-clicked-color); }
+      .game__cell--odd:hover {
+        background-color: var(--odd-hover-color);
+        border: 2px solid var(--odd-hover-color); }
+    .game__cell--even {
+      background-color: var(--even-color); }
+      .game__cell--even.clicked {
+        background-color: var(--even--clicked-color);
+        border: none !important; }
+        .game__cell--even.clicked:hover {
+          background-color: var(--even--clicked-color); }
+      .game__cell--even:hover {
+        background-color: var(--even-hover-color);
+        border: 2px solid var(--even-hover-color); }
+
+.h1 {
+  font-size: 5rem;
+  color: red;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  padding: 20rem 20rem;
+  background-color: blue; }
+
+.hidden {
+  display: none; }
+
+@keyframes pos {
+  0% {
+    top: 0; }
+  100% {
+    top: 100%; } }
+
+@keyframes pop {
+  0% {
+    transform: scale(1); }
+  100% {
+    transform: scale(0.2);
+    opacity: 0;
+    top: 100%; } }

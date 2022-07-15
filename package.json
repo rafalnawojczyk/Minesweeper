@@ -1,0 +1,23 @@
+{
+    "name": "minesweeper",
+    "version": "1.0.0",
+    "description": "Minesweeper",
+    "main": "index.js",
+    "scripts": {
+        "start": "parcel index.html"
+    },
+    "author": "Rafal Nawojczyk",
+    "license": "ISC",
+    "devDependencies": {
+        "@parcel/transformer-sass": "^2.6.2",
+        "autoprefixer": "^10.4.5",
+        "canvas-confetti": "^1.5.1",
+        "concat": "^1.0.3",
+        "node-sass": "^7.0.1",
+        "npm-run-all": "^4.1.5",
+        "postcss-cli": "^9.1.0"
+    },
+    "dependencies": {
+        "parcel": "^2.6.2"
+    }
+}
