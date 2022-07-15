@@ -6,16 +6,16 @@ import Cell from "./js/cellView.js";
 //flag entity 	&#128681;
 //bomb entity   &#128163;
 
-// TODO: ANIMATION OF ENDING GAME - BOMBS + COLORS + confetti -- canvas-confetti(npm package)
+// TODO: ANIMATION OF ENDING GAME - BOMBS + COLORS + confetti -
 // ADD TOP HEADER BADGE WITH A DIFFICULTY CHANGING POSSIBILITY + SCORES AND FLAG COUNTER
 // TRY TO FIND BETTER FLAG ENTITY
 // ADD METHOD THAT WILL MAYBE INCREASE COUNTER, AND IF COUNTER HITS SPOT, IT  MEANS  THAT THERE IS NO MORE UNCLICKED CELLS, AND GAME IS FINISHED
 
-let settings = State.difficulty["easy"];
+let settings = State.difficulty["med"];
 
-Grid.createBoard(...settings, "easy");
+Grid.createBoard(...settings, "med");
 State.setCellsNumbers(Grid.getCellsNumbers());
-Board.addClickHandler(mouseClickController, middleKeyClickController);
+Cell.addClickHandler(mouseClickController, middleKeyClickController);
 
 function mouseClickController(e) {
     e.preventDefault();
@@ -34,21 +34,23 @@ function leftKeyClickController() {
     const clickedCellValue = State.getCellNumber(cords);
 
     if (State.cellIsNumber(cords) && !Cell.hasFlag(this)) {
-        Board.revealNumber(this, cords, clickedCellValue);
-        // Cell.revealNumber(this,cords,clickedCellValue);
-        // Board.addCellBorders(Cell.getCellsWithNumbers());
-        Board.deleteClickHandler(this, mouseClickController);
+        // Board.revealNumber(this, cords, clickedCellValue);
+        Cell.revealNumber(this, cords, clickedCellValue);
+        Board.addCellBorders(Cell.getCellsWithNumbers());
+        Cell.deleteClickHandler(this, mouseClickController);
         return;
     }
 
     if (clickedCellValue === 0 && !Cell.hasFlag(this)) {
-        Board.revealEmptyCell(this, cords, State.getCellsNumbers());
+        // Board.revealEmptyCell(this, cords, State.getCellsNumbers());
+        Cell.revealEmptyCell(this, cords, State.getCellsNumbers());
+        Board.addCellBorders(Cell.getCellsWithNumbers());
 
-        Board.getFlagsToDelete().forEach(el => {
+        Cell.getFlagsToDelete().forEach(el => {
             Cell.animateFlagDelete(el);
         });
 
-        Board.deleteClickHandler(this, mouseClickController, true);
+        Cell.deleteClickHandler(this, mouseClickController, true);
         return;
     }
 
