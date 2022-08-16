@@ -1,7 +1,7 @@
 import confetti from "canvas-confetti";
 import { CONFETTI_COLORS, TEXT_COLORS } from "./config.js";
 
-export const makeConfetti = function (that, amount) {
+export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], grav = 1) {
     // animate confetti
 
     const amountOfParticles = amount === "small" ? 2 : 7;
@@ -22,13 +22,12 @@ export const makeConfetti = function (that, amount) {
         particleCount: 7,
         spread: 30,
         startVelocity: 10,
-        colors: CONFETTI_COLORS,
+        colors: color,
         shapes: ["square"],
         scalar: scale,
         zIndex: 100000,
         ticks: tick,
-        // any other options from the global
-        // confetti function
+        gravity: grav,
     });
 };
 
@@ -60,4 +59,17 @@ export const generateAdjacentCordsArray = function (x, y, onlySides = false) {
         x + 1 + "x" + y, // 8
         x + 1 + "x" + (y + 1), // 9
     ];
+};
+
+export const getCellCords = function (element) {
+    const coords = element.classList[1].slice(12);
+    return coords;
+};
+
+export const setDelayMs = async function (ms) {
+    try {
+        await new Promise(resolve => setTimeout(resolve, ms));
+    } catch (err) {
+        throw err;
+    }
 };

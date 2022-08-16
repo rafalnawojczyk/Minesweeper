@@ -1,11 +1,9 @@
 import { FIRST_BORDER, BORDER_INITIAL, BORDER_CHANGED } from "./config.js";
-import { generateTextColor, generateAdjacentCordsArray } from "./helpers.js";
-// import { makeConfetti } from "./helpers.js";
+import { generateAdjacentCordsArray } from "./helpers.js";
 
 class Board {
     #bombsPlacements = {};
     #cellsPlacements = {};
-    #cellsRevealed = [];
     #lastHighlighted;
     #cellsWithBorders = {};
 
@@ -26,6 +24,12 @@ class Board {
         }
     }
 
+    reset() {
+        this.#bombsPlacements = {};
+        this.#cellsPlacements = {};
+        this.#lastHighlighted = undefined;
+        this.#cellsWithBorders = {};
+    }
     getCellsPlacementObj() {
         return this.#cellsPlacements;
     }
@@ -116,14 +120,14 @@ class Board {
         let cellsArr = generateAdjacentCordsArray(x, y);
 
         if (
-            this.#lastHighlighted?.classList.contains("overlay") ||
+            this.#lastHighlighted?.classList.contains("cell__overlay") ||
             this.#lastHighlighted?.textContent.length === 1
         ) {
             [x, y] = this.#lastHighlighted.classList[1].slice(12).split("x");
             cellsArr = generateAdjacentCordsArray(x, y);
 
             cellsArr.forEach(cords => {
-                document.querySelector(`.game__cell--${cords}`)?.classList.remove("overlay");
+                document.querySelector(`.game__cell--${cords}`)?.classList.remove("cell__overlay");
             });
             this.#lastHighlighted = undefined;
             return;
@@ -135,7 +139,7 @@ class Board {
             const element = document.querySelector(`.game__cell--${cords}`);
 
             if (!element?.classList.contains("clicked") || element === that) {
-                element?.classList.add("overlay");
+                element?.classList.add("cell__overlay");
             }
             this.#lastHighlighted = that;
         });
@@ -152,9 +156,6 @@ class Board {
         cordsArr.forEach(cords => {
             this.#bombsPlacements[cords] = true;
         });
-    }
-    hasFlag(that) {
-        return that.textContent.length > 1;
     }
 
     #calcCellsAround(x, y) {

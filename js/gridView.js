@@ -1,21 +1,53 @@
-import { CELL_WIDTH, CELL_HEIGHT } from "./config.js";
+import { CELL_WIDTH, CELL_HEIGHT, CELL_FONT_SIZE } from "./config.js";
+import { setDelayMs } from "./helpers.js";
 
 class Grid {
     #gameStyle = document.querySelector(".game").style;
-    #cellsNumbers = {};
+    #headerStyle = document.querySelector(".header").style;
+    #cellsNumbers;
 
-    createBoard(columns, rows, bombs, difficulty) {
+    createBoard(columns, rows, _, difficulty) {
+        this.#cellsNumbers = {};
         this.#gameStyle.gridTemplateColumns = `repeat( ${columns} , 1fr)`;
         this.#gameStyle.gridTemplateRows = `repeat( ${rows} , 1fr)`;
-        this.#gameStyle.width = `${CELL_WIDTH[difficulty] * columns}vh`;
-        this.#gameStyle.height = `${CELL_HEIGHT[difficulty] * rows}vh`;
-        this.#gameStyle.marginTop = `${(100 - parseInt(this.#gameStyle.height)) / 2}vh`;
+        // this.#gameStyle.width = `${CELL_WIDTH[difficulty] * columns}vh`;
+        // this.#gameStyle.height = `${CELL_HEIGHT[difficulty] * rows}vh`;
+        // this.#headerStyle.width = `${CELL_WIDTH[difficulty] * columns}vh`;
+        // TODO: TEMPORARY
+        this.#gameStyle.width = `${CELL_WIDTH[difficulty] * columns}rem`;
+        this.#gameStyle.height = `${CELL_HEIGHT[difficulty] * rows}rem`;
+
+        this.#headerStyle.maxWidth = `${CELL_WIDTH[difficulty] * columns}rem`;
 
         const markup = this.#generateCells(rows, columns);
 
         this.#printToGameBoard(markup);
 
+        const gameCells = document.querySelectorAll(".game__cell");
+        gameCells.forEach(el => (el.fontSize = `${CELL_FONT_SIZE[difficulty]}rem`));
         this.#generateCrossPattern(columns);
+    }
+
+    addWaterTo(cords) {
+        const element = document.querySelector(`.game__cell--${cords}`);
+        element.style.transition = "all 3s";
+        if (element.classList.contains("game__cell--odd")) {
+            element.style.backgroundColor = "#84c4f7";
+        }
+
+        if (element.classList.contains("game__cell--even")) {
+            element.style.backgroundColor = "#8fcaf9";
+        }
+    }
+
+    async addGrassTo(cords) {
+        const element = document.querySelector(`.game__cell--${cords}`);
+        element.style.border = "none";
+        element.style.boxShadow = "none";
+        element.style.transition = "all 1.5s";
+        element.style.backgroundColor = "#9db66a";
+        await setDelayMs(1500);
+        element.style.backgroundColor = "#62ad50";
     }
 
     getCellsNumbers() {

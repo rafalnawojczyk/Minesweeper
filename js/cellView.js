@@ -1,10 +1,81 @@
-import { makeConfetti, generateTextColor, generateAdjacentCordsArray } from "./helpers.js";
+import { CONFETTI_COLORS } from "./config.js";
+import {
+    makeConfetti,
+    generateTextColor,
+    generateAdjacentCordsArray,
+    setDelayMs,
+} from "./helpers.js";
 
 class Cell {
     #cellsWithNumbers = [];
     #cellsQueue = [];
     #cellsRevealed = [];
     #flagsToDelete = [];
+    #bombAnimation;
+
+    reset() {
+        this.#cellsWithNumbers = [];
+        this.#cellsQueue = [];
+        this.#cellsRevealed = [];
+        this.#flagsToDelete = [];
+    }
+
+    animateNumberFadeOut(cords) {
+        const element = document.querySelector(`.game__cell--${cords}`);
+        element.style.transition = "all 0.3s";
+        element.style.color = "transparent";
+        setTimeout(this.#deleteNumber.bind(this, element), 300);
+    }
+
+    cancelBombAnimation() {
+        this.#bombAnimation = false;
+    }
+
+    async blowBombs(allCords, cords) {
+        // confetti with matching colors to a bomb - get random number, use it to get a color from confetticolor array. First 3 colors are colors that have to be used for background of tiles
+        // - use promise await for that. Add possibility to reject this whole function, so noone would need to wait for all animations to end
+        // - confettis have to fall really slow and for long time, cells have to have colors,
+        // - bombs are just round circles with much darker color than its background BOMB COLORS:
+        //  END BG / START BG / BOMB
+        //
+        try {
+            this.#bombAnimation = true;
+            const bombCords = allCords;
+            let firstCords = cords;
+
+            while (bombCords.length > 0 && this.#bombAnimation) {
+                const index = firstCords
+                    ? bombCords.indexOf(firstCords)
+                    : this.#generateRandomValue(0, bombCords.length);
+                const delay = this.#generateRandomValue(100, 600);
+                const random = this.#generateRandomValue(1, CONFETTI_COLORS.length);
+                const colors = CONFETTI_COLORS[random];
+                const coords = firstCords ? firstCords : bombCords[index];
+                const element = document.querySelector(`.game__cell--${coords}`);
+
+                makeConfetti(element, "big", colors, 0.4);
+                element.classList.add("bomb");
+                element.style.setProperty("--bomb-color", colors[2]);
+                element.style.setProperty("--bomb-bg", colors[1]);
+
+                setTimeout(function () {
+                    element.style.setProperty("--bomb-bg", colors[0]);
+                }, 800);
+
+                bombCords.splice(index, 1);
+                firstCords = false;
+                await setDelayMs(delay);
+            }
+
+            return true;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    #deleteNumber(element) {
+        element.textContent = "";
+    }
 
     #enqueueCords(cords) {
         if (!this.#cellsRevealed.includes(cords) && !this.#cellsQueue.includes(cords)) {
@@ -84,6 +155,10 @@ class Cell {
         makeConfetti(that);
     }
 
+    getCellsRevealed() {
+        return this.#cellsRevealed;
+    }
+
     getCellsWithNumbers() {
         return this.#cellsWithNumbers;
     }
@@ -134,7 +209,7 @@ class Cell {
 
             that.appendChild(element);
 
-            await this.#setDelayMs(1);
+            await setDelayMs(1);
 
             // set middle values and await
             let leftValue = this.#generateRandomValue(50, 150);
@@ -145,7 +220,7 @@ class Cell {
             element.style.top = `-${this.#generateRandomValue(100, 300)}%`;
             element.style.left = `${leftDirection}${leftValue}%`;
 
-            await this.#setDelayMs(300);
+            await setDelayMs(300);
 
             // set ending values and await
             element.style.transition = "all .5s";
@@ -153,7 +228,7 @@ class Cell {
             element.style.top = `${this.#generateRandomValue(400, 600)}%`;
             element.style.left = `${leftDirection}${leftValue * 1.2}%`;
 
-            await this.#setDelayMs(500);
+            await setDelayMs(500);
             // clear div
 
             that.innerHTML = "";
@@ -180,15 +255,7 @@ class Cell {
     }
 
     #generateRandomValue(from, to) {
-        return Math.floor(Math.random() * (to - from + 1) + from);
-    }
-
-    async #setDelayMs(ms) {
-        try {
-            await new Promise(resolve => setTimeout(resolve, ms));
-        } catch (err) {
-            throw err;
-        }
+        return Math.floor(Math.random() * (to - from) + from);
     }
 }
 

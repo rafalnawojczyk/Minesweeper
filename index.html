@@ -4,15 +4,61 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap"
+            rel="stylesheet"
+        />
+
         <link rel="stylesheet" href="sass/main.scss" />
         <script defer type="module" src="script.js"></script>
         <title>Minesweeper game</title>
     </head>
+    <div class="overlay"></div>
     <body oncontextmenu="return false;">
         <div class="container">
-            <div class="game"><div class="box"></div></div>
+            <div class="summary">
+                <div class="summary__score-box">
+                    <div class="summary__score-box--left">
+                        <img src="img/clock_icon.png" alt="Clock" class="summary__icon" />
+                        <p class="summary__score-text actual-score__label">000</p>
+                    </div>
+                    <div class="summary__score-box--right">
+                        <img src="img/trophy_icon.png" alt="Trophy" class="summary__icon" />
+                        <p class="summary__score-text highscore__label">000</p>
+                    </div>
+                </div>
 
-            <h1 class="h1 hidden">GAME OVER</h1>
+                <button class="summary__btn">
+                    <img
+                        src="img/refresh_white_24dp.png"
+                        alt="refresh icon"
+                        class="summary__btn--icon"
+                    />
+                    <p>Play again</p>
+                </button>
+            </div>
+
+            <div class="header">
+                <form class="difficulty-form">
+                    <select name="difficulty" id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="med" selected="selected">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </form>
+
+                <div class="statistics">
+                    <p class="statistics__flag">&#128681;</p>
+                    <p class="statistics__flags-counter">40</p>
+                    <p class="statistics__timer">&#x23F1;</p>
+                    <p class="statistics__timer-counter">000</p>
+                </div>
+
+                <div class="sound">&#x1F50A;</div>
+            </div>
+            <div class="game"><div class="box"></div></div>
         </div>
     </body>
 </html>
