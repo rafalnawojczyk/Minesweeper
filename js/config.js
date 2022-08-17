@@ -5,6 +5,10 @@ export const CELL_HEIGHT = { easy: 4, med: 3.5, hard: 2.8 };
 // export const CELL_HEIGHT = { easy: 4, med: 3.5, hard: 3 };
 export const CELL_FONT_SIZE = { easy: 3.5, med: 3, hard: 2.4 };
 
+export const LONG_CLICK_MS = 500;
+
+export const PHONE_WIDTH = 640;
+
 export const CONFETTI_COLORS = [
     ["#a2d149", "#aad751", "#69C65C", "#E3D356", "#879762", "#9FCC46", "#5A8800"],
     ["#DB3236", "#992326", "#e67072", "#DE978D", "#9C6D71", "#FFA394", "#FF5F74"],

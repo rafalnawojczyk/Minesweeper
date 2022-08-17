@@ -9,7 +9,9 @@
     "author": "Rafal Nawojczyk",
     "license": "ISC",
     "devDependencies": {
+        "@parcel/packager-raw-url": "^2.6.2",
         "@parcel/transformer-sass": "^2.6.2",
+        "@parcel/transformer-webmanifest": "^2.6.2",
         "autoprefixer": "^10.4.5",
         "canvas-confetti": "^1.5.1",
         "concat": "^1.0.3",

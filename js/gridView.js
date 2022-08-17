@@ -1,23 +1,47 @@
-import { CELL_WIDTH, CELL_HEIGHT, CELL_FONT_SIZE } from "./config.js";
+import { CELL_WIDTH, CELL_HEIGHT, CELL_FONT_SIZE, PHONE_WIDTH } from "./config.js";
 import { setDelayMs } from "./helpers.js";
 
 class Grid {
     #gameStyle = document.querySelector(".game").style;
     #headerStyle = document.querySelector(".header").style;
+    #body = document.querySelector("body").style;
+    #container = document.querySelector(".container").style;
+    #summary = document.querySelector(".summary").style;
     #cellsNumbers;
 
     createBoard(columns, rows, _, difficulty) {
+        let cellWidth = CELL_WIDTH[difficulty];
+        let cellHeight = CELL_HEIGHT[difficulty];
+
+        if (window.innerWidth < PHONE_WIDTH) {
+            // cell dimensions in rems
+            cellWidth = cellHeight = Number(this.#calculateCellDimensions(columns, rows));
+
+            // container should be fixed to top of the screen
+            this.#container.position = "fixed";
+            this.#container.top = "0";
+            this.#container.left = "0";
+            this.#container.transform = "translate(0, 0)";
+            this.#container.height = "100vh";
+
+            this.#summary.width = "85vw";
+
+            this.#gameStyle.position = "absolute";
+            this.#gameStyle.left = "50%";
+            this.#gameStyle.top = `${this.#calcMobileTopMargin(rows, cellWidth)}rem`;
+            this.#gameStyle.transform = "translateX(-50%)";
+
+            this.#headerStyle.width = `100%`;
+        } else {
+            this.#headerStyle.maxWidth = `${cellWidth * columns}rem`;
+        }
+
         this.#cellsNumbers = {};
         this.#gameStyle.gridTemplateColumns = `repeat( ${columns} , 1fr)`;
         this.#gameStyle.gridTemplateRows = `repeat( ${rows} , 1fr)`;
-        // this.#gameStyle.width = `${CELL_WIDTH[difficulty] * columns}vh`;
-        // this.#gameStyle.height = `${CELL_HEIGHT[difficulty] * rows}vh`;
-        // this.#headerStyle.width = `${CELL_WIDTH[difficulty] * columns}vh`;
-        // TODO: TEMPORARY
-        this.#gameStyle.width = `${CELL_WIDTH[difficulty] * columns}rem`;
-        this.#gameStyle.height = `${CELL_HEIGHT[difficulty] * rows}rem`;
 
-        this.#headerStyle.maxWidth = `${CELL_WIDTH[difficulty] * columns}rem`;
+        this.#gameStyle.width = `${cellWidth * columns}rem`;
+        this.#gameStyle.height = `${cellHeight * rows}rem`;
 
         const markup = this.#generateCells(rows, columns);
 
@@ -28,6 +52,18 @@ class Grid {
         this.#generateCrossPattern(columns);
     }
 
+    setBackground(width) {
+        this.#body.backgroundColor = width < PHONE_WIDTH ? "#578a34" : "#faf8ef";
+    }
+
+    #calcMobileTopMargin(rows, cellWidth) {
+        const headerHeight = document.querySelector(".header").getBoundingClientRect().height;
+
+        const marginTop =
+            (window.innerHeight / 10 - (rows * cellWidth - (headerHeight / 10).toFixed(2))) / 2;
+
+        return marginTop.toFixed(2);
+    }
     addWaterTo(cords) {
         const element = document.querySelector(`.game__cell--${cords}`);
         element.style.transition = "all 3s";
@@ -52,6 +88,13 @@ class Grid {
 
     getCellsNumbers() {
         return this.#cellsNumbers;
+    }
+
+    #calculateCellDimensions(columns, rows) {
+        const height = ((window.innerHeight * 0.85) / rows / 10).toFixed(2);
+        const width = ((window.innerWidth * 0.85) / columns / 10).toFixed(2);
+
+        return height > width ? width : height;
     }
 
     #generateCells(rows, columns) {

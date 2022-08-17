@@ -5,26 +5,42 @@ import Cell from "./js/cellView.js";
 import Statistics from "./js/statisticsView.js";
 import Score from "./js/scoreView";
 import { getCellCords, setDelayMs } from "./js/helpers.js";
+import { LONG_CLICK_MS, PHONE_WIDTH } from "./js/config.js";
 
 // TODO: FLAGS COUNTER
 // CHECK FLAG COUNTER AND FIX IT
 
-// TODO:
-// Think about adding some rules to the gridView when its building the cells and game layout. It has to take into account screen width of device, and according to that it should change the layout from eg. 8x10 to 6x12, so all of the tiles will be nice and big. Now in smaller screens this isnt really readable
-
-// TODO:
-// make animation that will be shaking entire game container on move.
-
 function mouseClickController(e) {
     e.preventDefault();
+    // 1 - LMB, 3 - RMB
     if (e.which === 1) leftKeyClickController.call(this);
     if (e.which === 3) rightKeyClickController.call(this);
     if (State.isGameFinished()) finishedGameController();
 }
 
+function touchStartController(e) {
+    State.startTouchTimer();
+    const timeoutID = setTimeout(() => rightKeyClickController.call(this), LONG_CLICK_MS);
+    State.setTimeoutID(timeoutID);
+}
+function touchEndController(e) {
+    if (State.endTouchTimer() < LONG_CLICK_MS) {
+        State.resetTimeoutID();
+        if (Cell.hasFlag(this)) {
+            rightKeyClickController.call(this);
+
+            return;
+        }
+        leftKeyClickController.call(this);
+
+        return;
+    }
+}
+
 function leftKeyClickController() {
     if (State.getMovesCounter() === 0) {
-        Board.placeBombs(...State.difficulty[State.getActualDifficulty()], this);
+        const settings = State.getSettings();
+        Board.placeBombs(...settings, this);
         State.updateCellsNumbers(Board.getCellsPlacementObj());
 
         Statistics.startTimer();
@@ -37,7 +53,8 @@ function leftKeyClickController() {
     if (State.cellIsNumber(cords) && !Cell.hasFlag(this) && !State.cordsHaveFlag(cords)) {
         Cell.revealNumber(this, cords, clickedCellValue);
         Board.addCellBorders(Cell.getCellsWithNumbers());
-        Cell.deleteClickHandler(this, mouseClickController);
+
+        deleteAllHandlers(this);
         State.saveOpenedCells([cords]);
         return;
     }
@@ -52,7 +69,14 @@ function leftKeyClickController() {
             Cell.animateFlagDelete(el);
         });
 
-        Cell.deleteClickHandler(this, mouseClickController, true);
+        const allCells = Cell.getCellsRevealed();
+        allCells.forEach(cords => {
+            const element = document.querySelector(`.game__cell--${cords}`);
+            deleteAllHandlers(element);
+        });
+
+        Cell.clearCellsRevealed();
+
         return;
     }
 
@@ -97,10 +121,17 @@ async function endGameController(cords) {
         const bombCords = State.getBombCells();
 
         allCells.forEach(cellElement => {
-            Cell.deleteClickHandler(cellElement, mouseClickController);
-            Cell.deleteClickHandler(cellElement, middleKeyClickController);
+            Cell.deleteClickHandler(cellElement, middleKeyClickController, "mouseup");
+            Cell.deleteClickHandler(cellElement, middleKeyClickController, "mousedown");
+
+            deleteAllHandlers(cellElement);
+
             setTimeout(function () {
-                Cell.addClickHandler(cellElement, skipEndAnimation);
+                if (window.innerWidth < PHONE_WIDTH) {
+                    Cell.addTouchHandler(skipEndAnimation);
+                } else {
+                    Cell.addClickHandler(skipEndAnimation);
+                }
             }, 1000);
         });
 
@@ -114,6 +145,12 @@ async function endGameController(cords) {
     } catch (err) {
         console.log(err);
     }
+}
+
+function deleteAllHandlers(cellElement) {
+    Cell.deleteClickHandler(cellElement, mouseClickController, "mousedown");
+    Cell.deleteClickHandler(cellElement, touchStartController, "touchstart");
+    Cell.deleteClickHandler(cellElement, touchEndController, "touchend");
 }
 
 async function skipEndAnimation() {
@@ -173,35 +210,31 @@ function restartGameController() {
 
 function gameDifficultyController(event) {
     const diff = event.target.value;
-
     gameInit(diff);
 }
 
-// TODO:
-// gameInit should sent three values,  difficulty, client width, client height
-//
-
 function gameInit(diff) {
-    const clientX = window.innerWidth;
-
     State.reset();
     Board.reset();
     Cell.reset();
     Statistics.cleanTimer();
     State.setActualDifficulty(diff);
 
-    // TODO: take settings based on screen size
-
-    const settings = clientX < 600 ? State.phoneDifficulty[diff] : State.difficulty[diff];
-
-    // const settings = State.difficulty[diff];
+    const settings = State.getSettings();
 
     Grid.createBoard(...settings, diff);
     State.setCellsNumbers(Grid.getCellsNumbers());
     Statistics.printFlags(State.setFlagCounter(diff));
-    Cell.addClickHandler(mouseClickController, middleKeyClickController);
+    if (window.innerWidth < PHONE_WIDTH) {
+        Cell.addTouchHandler(touchStartController, touchEndController);
+    } else {
+        Cell.addClickHandler(mouseClickController, middleKeyClickController);
+    }
+
     Statistics.addClickHandler(gameDifficultyController);
 }
+State.setClientWidth(window.innerWidth);
+Grid.setBackground(window.innerWidth);
+State.getScoreFromLocalStorage();
 
 gameInit("med");
-State.getScoreFromLocalStorage();

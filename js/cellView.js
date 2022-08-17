@@ -32,12 +32,6 @@ class Cell {
     }
 
     async blowBombs(allCords, cords) {
-        // confetti with matching colors to a bomb - get random number, use it to get a color from confetticolor array. First 3 colors are colors that have to be used for background of tiles
-        // - use promise await for that. Add possibility to reject this whole function, so noone would need to wait for all animations to end
-        // - confettis have to fall really slow and for long time, cells have to have colors,
-        // - bombs are just round circles with much darker color than its background BOMB COLORS:
-        //  END BG / START BG / BOMB
-        //
         try {
             this.#bombAnimation = true;
             const bombCords = allCords;
@@ -159,23 +153,16 @@ class Cell {
         return this.#cellsRevealed;
     }
 
+    clearCellsRevealed() {
+        this.#cellsRevealed.length = 0;
+    }
+
     getCellsWithNumbers() {
         return this.#cellsWithNumbers;
     }
 
-    deleteClickHandler(that, handler, multi = false) {
-        if (multi) {
-            this.#cellsRevealed.forEach(xyCords => {
-                document
-                    .querySelector(`.game__cell--${xyCords}`)
-                    .removeEventListener("mousedown", handler);
-            });
-
-            this.#cellsRevealed.length = 0;
-            return;
-        }
-
-        that.removeEventListener("mousedown", handler);
+    deleteClickHandler(that, handler, handlerEvent) {
+        that.removeEventListener(`${handlerEvent}`, handler);
         return;
     }
 
@@ -189,6 +176,14 @@ class Cell {
             .querySelectorAll(".game__cell")
             .forEach(el => el.addEventListener("mouseup", mouseup));
     }
+
+    addTouchHandler(handlerStart, handlerEnd) {
+        document.querySelectorAll(".game__cell").forEach(el => {
+            el.addEventListener("touchstart", handlerStart);
+            el.addEventListener("touchend", handlerEnd);
+        });
+    }
+
     async animateFlagDelete(that) {
         try {
             const element = that.querySelector(".game__cell--flag")?.cloneNode(true);

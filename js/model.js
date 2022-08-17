@@ -1,3 +1,5 @@
+import { PHONE_WIDTH } from "./config";
+
 class State {
     difficulty = {
         // columns, rows, bombs
@@ -8,9 +10,9 @@ class State {
 
     phoneDifficulty = {
         // columns, rows, bombs
-        easy: [10, 8, 10],
-        med: [14, 18, 40], // PHONE MED
-        hard: [15, 28, 89], // PHONE HARD
+        easy: [6, 11, 10],
+        med: [11, 18, 35],
+        hard: [15, 25, 75],
     };
 
     #cellsNumbers;
@@ -26,11 +28,40 @@ class State {
         med: 0,
         hard: 0,
     };
+    #clientWidth;
+    #startTouch;
+    #timeoutID;
+
+    getSettings() {
+        const obj = this.#clientWidth < PHONE_WIDTH ? this.phoneDifficulty : this.difficulty;
+        return obj[this.#actualDifficulty];
+    }
+
+    setClientWidth(width) {
+        this.#clientWidth = width;
+    }
 
     getScoreFromLocalStorage() {
         const data = localStorage.getItem("highscore");
         if (!data) return;
         this.#highScore = JSON.parse(data);
+    }
+
+    startTouchTimer() {
+        this.#startTouch = new Date();
+    }
+
+    setTimeoutID(timeoutId) {
+        this.#timeoutID = timeoutId;
+    }
+
+    resetTimeoutID() {
+        clearTimeout(this.#timeoutID);
+        this.#timeoutID = undefined;
+    }
+
+    endTouchTimer() {
+        return new Date() - this.#startTouch;
     }
 
     #saveToLocalStorage() {
