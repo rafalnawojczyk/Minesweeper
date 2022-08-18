@@ -11,21 +11,14 @@ import { LONG_CLICK_MS } from "./js/config.js";
 // CHECK FLAG COUNTER AND FIX IT
 
 // TODO:
-// on phones change font sizes, cuz its resizing grid
-
-// TODO:OPTIMIZATION:
-// try to reduce use of querySelector - maybe store all of the elements(game cells) in an array or object and acces it by it. Ojbect would be probably better, and it should have properties based on cords like 3x12 - which will reduce time and resources that are needed to find one element.
-
-// try to add multiple styles at once to an element
-
-// TODO:
-// mobiles cannot see the ending of game
+// optimize confeti on phones. Think about adding smaller amount of confetti everywhere when its on phone, changing all things to reduce performance problems
 
 function mouseClickController(e) {
     e.preventDefault();
     // 1 - LMB, 3 - RMB
     if (e.which === 1) leftKeyClickController.call(this);
     if (e.which === 3) rightKeyClickController.call(this);
+
     if (State.isGameFinished()) finishedGameController();
 }
 
@@ -33,7 +26,6 @@ function touchStartController(e) {
     State.startTouchTimer();
     const timeoutID = setTimeout(() => rightKeyClickController.call(this), LONG_CLICK_MS);
     State.setTimeoutID(timeoutID);
-    if (State.isGameFinished()) finishedGameController();
 }
 function touchEndController(e) {
     if (State.endTouchTimer() < LONG_CLICK_MS) {
@@ -41,9 +33,14 @@ function touchEndController(e) {
         if (Cell.hasFlag(this)) {
             rightKeyClickController.call(this);
 
+            if (State.isGameFinished()) finishedGameController();
+
             return;
         }
+
         leftKeyClickController.call(this);
+
+        if (State.isGameFinished()) finishedGameController();
 
         return;
     }
@@ -53,6 +50,7 @@ function leftKeyClickController() {
     if (State.getMovesCounter() === 0) {
         const settings = State.getSettings();
         Board.placeBombs(...settings, this);
+
         State.updateCellsNumbers(Board.getCellsPlacementObj());
 
         Statistics.startTimer();
@@ -61,19 +59,20 @@ function leftKeyClickController() {
     State.movesCounterAdd();
     const cords = this.classList[1].slice(12);
     const clickedCellValue = State.getCellNumber(cords);
+    const allCells = State.getAllCells();
 
     if (State.cellIsNumber(cords) && !Cell.hasFlag(this) && !State.cordsHaveFlag(cords)) {
         Cell.revealNumber(this, cords, clickedCellValue);
-        Board.addCellBorders(Cell.getCellsWithNumbers());
-
+        Board.addCellBorders(allCells, Cell.getCellsWithNumbers());
         deleteAllHandlers(this);
         State.saveOpenedCells([cords]);
         return;
     }
 
     if (clickedCellValue === 0 && !Cell.hasFlag(this) && !State.cordsHaveFlag(cords)) {
-        Cell.revealEmptyCell(this, cords, State.getCellsNumbers());
-        Board.addCellBorders(Cell.getCellsWithNumbers());
+        Cell.revealEmptyCell(this, cords, State.getCellsNumbers(), allCells);
+        Board.addCellBorders(allCells, Cell.getCellsWithNumbers());
+
         State.saveOpenedCells(Cell.getCellsRevealed());
 
         Cell.getFlagsToDelete().forEach(el => {
@@ -81,9 +80,9 @@ function leftKeyClickController() {
             Cell.animateFlagDelete(el);
         });
 
-        const allCells = Cell.getCellsRevealed();
-        allCells.forEach(cords => {
-            const element = document.querySelector(`.game__cell--${cords}`);
+        const cellsRevealed = Cell.getCellsRevealed();
+        cellsRevealed.forEach(cords => {
+            const element = allCells[cords];
             deleteAllHandlers(element);
         });
 
@@ -99,7 +98,7 @@ function leftKeyClickController() {
 }
 
 function middleKeyClickController(e) {
-    if (e.which === 2) Board.highlightCellsAround(this);
+    if (e.which === 2) Board.highlightCellsAround(this, State.getAllCells());
 }
 
 function rightKeyClickController() {
@@ -122,32 +121,34 @@ function rightKeyClickController() {
 async function endGameController(cords) {
     try {
         Statistics.cleanTimer();
-
         State.getElementsWithFlags().forEach(el => {
             Cell.animateFlagDelete(el);
         });
 
-        const allCells = State.getAllCellsWithNumbers()
-            .concat(State.getBombCells())
-            .map(el => document.querySelector(`.game__cell--${el}`));
-        const bombCords = State.getBombCells();
+        const allCells = State.getAllCells();
 
-        allCells.forEach(cellElement => {
+        const bombCords = State.getAllCellsWithBombs();
+
+        // Add skip animation handler to all cells
+        setTimeout(function () {
+            if (State.deviceIsPhone()) {
+                Cell.addAllTouchHandler(allCells, skipEndAnimation);
+            } else {
+                Cell.addAllClickHandler(allCells, skipEndAnimation);
+            }
+        }, 1000);
+
+        for (let key in allCells) {
+            const cellElement = allCells[key];
+            if (cellElement.classList.contains("clicked")) continue;
+
             Cell.deleteClickHandler(cellElement, middleKeyClickController, "mouseup");
             Cell.deleteClickHandler(cellElement, middleKeyClickController, "mousedown");
 
             deleteAllHandlers(cellElement);
+        }
 
-            setTimeout(function () {
-                if (State.deviceIsPhone()) {
-                    Cell.addTouchHandler(skipEndAnimation);
-                } else {
-                    Cell.addClickHandler(skipEndAnimation);
-                }
-            }, 1000);
-        });
-
-        await Cell.blowBombs(bombCords, cords);
+        await Cell.blowBombs(allCells, bombCords, cords);
         await setDelayMs(1000);
 
         if (Score.isPopupDisplayed() || State.getMovesCounter() === 0) return;
@@ -177,27 +178,29 @@ async function skipEndAnimation() {
 }
 async function finishedGameController() {
     try {
+        const allCells = State.getAllCells();
         // STOP STOPER AND SAVE TIME
         Statistics.cleanTimer(false);
-        Statistics.getTimerValue();
+        const actualTime = Statistics.getTimerValue();
         // AlL FLAGS HAS TO BE DELETED
         State.getElementsWithFlags().forEach(el => {
             Cell.animateFlagDelete(el);
         });
         // DELETE ALL NUMBERS FROM CELLS
-        const allCells = State.getAllCellsWithNumbers();
-        allCells.forEach(cords => {
-            Cell.animateNumberFadeOut(cords);
+        const numberCells = State.getAllCellsWithNumbers();
+
+        numberCells.forEach(cords => {
+            Cell.animateNumberFadeOut(cords, allCells);
+            Grid.addWaterTo(cords, allCells);
         });
-        // ADD WATER TO ALL CELLS WITHOUT BOMB
-        allCells.forEach(cords => {
-            Grid.addWaterTo(cords);
-        });
+
         // COLOR ALL CELLS WITH BOMBS WITH THE SAME GREEN COLOR
         // TODO: THINK ABOUT ADDING SOME FLOWERS TO ALL GREEN CELLS THAT ARE LEFT
-        const bombCells = State.getBombCells();
-        bombCells.forEach(cords => Grid.addGrassTo(cords));
-        const actualTime = Statistics.getTimerValue();
+
+        const bombCells = State.getAllCellsWithBombs();
+
+        bombCells.forEach(cords => Grid.addGrassTo(cords, allCells));
+
         Score.printActualscore(actualTime);
         if (State.checkForHighScore(actualTime)) {
             State.saveHighScore(actualTime);
@@ -234,17 +237,18 @@ function gameInit(diff) {
 
     const settings = State.getSettings();
 
-    Grid.createBoard(...settings, diff);
+    const allCells = Grid.createBoard(...settings, diff);
     State.setCellsNumbers(Grid.getCellsNumbers());
+    State.setAllCells(allCells);
     Statistics.printFlags(State.setFlagCounter(diff));
     if (State.deviceIsPhone()) {
-        Cell.addTouchHandler(touchStartController, touchEndController);
+        Cell.addAllTouchHandler(allCells, touchStartController, touchEndController);
     } else {
-        Cell.addClickHandler(mouseClickController, middleKeyClickController);
+        Cell.addAllClickHandler(allCells, mouseClickController, middleKeyClickController);
     }
-
     Statistics.addClickHandler(gameDifficultyController);
 }
+
 State.setClientWidth(window.innerWidth);
 Grid.setBackground(window.innerWidth);
 State.getScoreFromLocalStorage();

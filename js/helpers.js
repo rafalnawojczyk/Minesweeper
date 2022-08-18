@@ -3,26 +3,26 @@ import { CONFETTI_COLORS, TEXT_COLORS } from "./config.js";
 import model from "./model.js";
 
 export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], grav = 1) {
-    // animate confetti
+    let amountOfParticles = amount === "small" ? 2 : 7;
+    let scale = amount === "small" ? 1.6 : 2;
+    let tick = amount === "small" ? 150 : 200;
 
-    if (model.deviceIsPhone()) return;
-
-    const amountOfParticles = amount === "small" ? 2 : 7;
-    const scale = amount === "small" ? 1.6 : 2;
-    const tick = amount === "small" ? 150 : 200;
+    // TODO: WITHOUT THIS IT WAS LAGGING A LOT _ TEST IT MORE THOROUGHLY
+    if (model.deviceIsPhone()) {
+        amountOfParticles = 1;
+        scale = 1.5;
+        tick = 50;
+    }
 
     const myCanvas = document.createElement("canvas");
-    // ********************* PERFORMANCE TEST *********************
     myCanvas.style.cssText += "position: absolute; z-index: 5000; pointer-events: none;";
 
-    // myCanvas.style.position = "absolute";
-    // myCanvas.style.zIndex = "5000";
-    // myCanvas.style.pointerEvents = "none";
     that.appendChild(myCanvas);
 
     const myConfetti = confetti.create(myCanvas, {
         resize: true,
-        useWorker: true,
+        // TODO: check this one below
+        useWorker: false,
     });
     myConfetti({
         particleCount: amountOfParticles,

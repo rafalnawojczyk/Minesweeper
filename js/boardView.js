@@ -34,9 +34,9 @@ class Board {
         return this.#cellsPlacements;
     }
 
-    #cleanAllBorders() {
+    #cleanAllBorders(allCells) {
         for (let cords in this.#cellsWithBorders) {
-            const elem = document.querySelector(`.game__cell--${cords}`);
+            const elem = allCells[cords];
             if (elem) {
                 elem.style.boxShadow = "none";
             }
@@ -51,8 +51,8 @@ class Board {
         return cell.textContent < 50 && cell.textContent > 0;
     }
 
-    addCellBorders(cellsWithNumbers) {
-        this.#cleanAllBorders();
+    addCellBorders(allCells, cellsWithNumbers) {
+        this.#cleanAllBorders(allCells);
 
         //print new borders
         cellsWithNumbers.forEach(cords => {
@@ -61,7 +61,7 @@ class Board {
 
             // firstly add all sides that needs border to the array
             sideCordsArr.forEach((cords, index) => {
-                const cell = document.querySelector(`.game__cell--${cords}`);
+                const cell = allCells[cords];
                 if (cell && !cell.classList.contains("clicked") && !this.#cellIsNumber(cell)) {
                     const borderSide = this.#getProperBorderSide(index);
 
@@ -76,7 +76,7 @@ class Board {
 
         for (let cords in this.#cellsWithBorders) {
             const sides = ["left", "right", "bottom", "top"];
-            const element = document.querySelector(`.game__cell--${cords}`);
+            const element = allCells[cords];
             let borderValue = [FIRST_BORDER];
             this.#cellsWithBorders[cords].forEach(side => {
                 borderValue.push(BORDER_CHANGED[side]);
@@ -89,7 +89,7 @@ class Board {
 
             const value = borderValue.join(",") + ";";
 
-            element.style.cssText = `box-shadow: ${value}`;
+            element.style.cssText += `box-shadow: ${value}`;
         }
     }
 
@@ -115,7 +115,7 @@ class Board {
         return property;
     }
 
-    highlightCellsAround(that) {
+    highlightCellsAround(that, allCells) {
         let [x, y] = that.classList[1].slice(12).split("x");
         let cellsArr = generateAdjacentCordsArray(x, y);
 
@@ -127,7 +127,7 @@ class Board {
             cellsArr = generateAdjacentCordsArray(x, y);
 
             cellsArr.forEach(cords => {
-                document.querySelector(`.game__cell--${cords}`)?.classList.remove("cell__overlay");
+                cellsArr[cords]?.classList.remove("cell__overlay");
             });
             this.#lastHighlighted = undefined;
             return;
@@ -136,7 +136,7 @@ class Board {
         if (that.classList.contains("clicked") && !this.#cellIsNumber(that)) return;
 
         cellsArr.forEach(cords => {
-            const element = document.querySelector(`.game__cell--${cords}`);
+            const element = allCells[cords];
 
             if (!element?.classList.contains("clicked") || element === that) {
                 element?.classList.add("cell__overlay");

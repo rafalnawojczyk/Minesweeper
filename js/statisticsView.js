@@ -4,8 +4,10 @@ class Statistics {
     #select = document.querySelector("#difficulty");
     #timerValue = 0;
     #interval;
+    #timerStartDate;
 
     startTimer() {
+        this.#timerStartDate = new Date();
         this.#interval = setInterval(this.#manageTimer.bind(this), 1000);
     }
 
@@ -14,12 +16,8 @@ class Statistics {
     }
 
     #manageTimer() {
-        this.#increaseTimer();
+        this.#timerValue = Math.round((new Date() - this.#timerStartDate) / 1000);
         this.#printTimer(this.#timerValue);
-    }
-
-    #increaseTimer() {
-        this.#timerValue++;
     }
 
     #printTimer(time) {
@@ -35,6 +33,7 @@ class Statistics {
         clearInterval(this.#interval);
         if (clean) {
             this.#timerValue = 0;
+            this.#timerStartDate = undefined;
             this.#printTimer(this.#timerValue);
         }
     }

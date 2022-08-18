@@ -20,10 +20,9 @@ class Cell {
         this.#flagsToDelete = [];
     }
 
-    animateNumberFadeOut(cords) {
-        const element = document.querySelector(`.game__cell--${cords}`);
-        element.style.transition = "all 0.3s";
-        element.style.color = "transparent";
+    animateNumberFadeOut(cords, allCells) {
+        const element = allCells[cords];
+        element.style.cssText += "transition: all 0.3s; color: transparent;";
         setTimeout(this.#deleteNumber.bind(this, element), 300);
     }
 
@@ -31,10 +30,10 @@ class Cell {
         this.#bombAnimation = false;
     }
 
-    async blowBombs(allCords, cords) {
+    async blowBombs(allCells, bombCords, cords) {
         try {
             this.#bombAnimation = true;
-            const bombCords = allCords;
+
             let firstCords = cords;
 
             while (bombCords.length > 0 && this.#bombAnimation) {
@@ -45,11 +44,9 @@ class Cell {
                 const random = this.#generateRandomValue(1, CONFETTI_COLORS.length);
                 const colors = CONFETTI_COLORS[random];
                 const coords = firstCords ? firstCords : bombCords[index];
-                const element = document.querySelector(`.game__cell--${coords}`);
+                const element = allCells[coords];
 
-                if (window.innerWidth > PHONE_WIDTH) {
-                    makeConfetti(element, "small", colors, 0.4);
-                }
+                makeConfetti(element, "small", colors, 0.4);
 
                 element.classList.add("bomb");
                 element.style.setProperty("--bomb-color", colors[2]);
@@ -90,8 +87,8 @@ class Cell {
             this.#flagsToDelete.push(element);
     }
 
-    #markClicked(xyCord, cellsNumbers) {
-        const element = document.querySelector(`.game__cell--${xyCord}`);
+    #markClicked(xyCord, cellsNumbers, allCells) {
+        const element = allCells[xyCord];
 
         this.#addFlagToDelete(element);
 
@@ -105,34 +102,34 @@ class Cell {
         makeConfetti(element);
     }
 
-    revealEmptyCell(that, cords, state) {
+    revealEmptyCell(that, cords, state, allCells) {
         that.classList.add("clicked");
-        const [x, y] = cords.split("x");
         this.#cellsQueue.push(cords);
 
         while (this.#cellsQueue.length > 0) {
-            this.#revealAdjacentCells(state);
+            this.#revealAdjacentCells(state, allCells);
         }
     }
 
-    #revealAdjacentCells(cellsNumbers) {
+    #revealAdjacentCells(cellsNumbers, allCells) {
         const [x, y] = this.#cellsQueue[0].split("x").map(z => +z);
         const outerCordsIndex = [0, 2, 6, 8];
         const cordsArr = generateAdjacentCordsArray(x, y);
         cordsArr.forEach((xyCords, i) => {
             if (outerCordsIndex.includes(i)) {
                 if (cellsNumbers[xyCords] > 0 && cellsNumbers[xyCords] < 11) {
-                    this.#markClicked(xyCords, cellsNumbers);
+                    this.#markClicked(xyCords, cellsNumbers, allCells);
                 }
             }
             if (!outerCordsIndex.includes(i)) {
                 if (cellsNumbers[xyCords] === 0) {
-                    const element = document.querySelector(`.game__cell--${xyCords}`);
+                    const element = allCells[xyCords];
+
                     element.classList.add("clicked");
                     this.#enqueueCords(xyCords);
                     this.#addFlagToDelete(element);
                 } else if (cellsNumbers[xyCords] > 0 && cellsNumbers[xyCords] < 11) {
-                    this.#markClicked(xyCords, cellsNumbers);
+                    this.#markClicked(xyCords, cellsNumbers, allCells);
                 }
             }
         });
@@ -141,14 +138,11 @@ class Cell {
         this.#cellsQueue.splice(0, 1);
     }
 
-    revealNumber(that, cords, clickedCell) {
-        document.querySelector(`.game__cell--${cords}`).textContent = clickedCell;
+    revealNumber(that, cords, clickedCellValue) {
+        that.textContent = clickedCellValue;
         that.classList.add("clicked");
-
-        that.style.setProperty("--color-text", generateTextColor(clickedCell));
-
+        that.style.setProperty("--color-text", generateTextColor(clickedCellValue));
         this.#cellsWithNumbers.push(cords);
-
         makeConfetti(that);
     }
 
@@ -169,45 +163,34 @@ class Cell {
         return;
     }
 
-    addClickHandler(handler, mouseup) {
-        document.querySelectorAll(".game__cell").forEach(el => {
+    addAllClickHandler(allCells, handler, mouseup) {
+        for (let key in allCells) {
+            const el = allCells[key];
             el.addEventListener("mousedown", handler);
             el.addEventListener("mousedown", mouseup);
-        });
-
-        document
-            .querySelectorAll(".game__cell")
-            .forEach(el => el.addEventListener("mouseup", mouseup));
+            el.addEventListener("mouseup", mouseup);
+        }
     }
 
-    addTouchHandler(handlerStart, handlerEnd) {
-        document.querySelectorAll(".game__cell").forEach(el => {
+    addAllTouchHandler(allCells, handlerStart, handlerEnd) {
+        for (let key in allCells) {
+            const el = allCells[key];
             el.addEventListener("touchstart", handlerStart);
             el.addEventListener("touchend", handlerEnd);
-        });
+        }
     }
 
     async animateFlagDelete(that) {
         try {
             const flagElement = that.querySelector(".game__cell--flag");
-            const element = flagElement?.cloneNode(true);
             if (!flagElement) return;
+            const element = flagElement?.cloneNode(true);
             flagElement.style.display = "none";
 
             // set beggining values and show cloned element
-            // ********************* PERFORMANCE TEST *********************
+
             element.style.cssText += `z-index: 10000; font-size: 1.7rem; position: absolute; transition: all 0.3s; transform: scale(1) rotate(0deg) translate(-50%, -50%); animation: none; top: 50%; left: 50%; opacity: 1;`;
             element.classList.remove(".game__cell--flag");
-            // element.style.zIndex = "10000";
-            // element.style.fontSize = "1.7rem";
-            // element.style.position = "absolute";
-            // element.style.transition = "all 0.3s";
-            // element.style.transform = "scale(1) rotate(0deg) translate(-50%, -50%)";
-            // element.style.animation = "";
-            // element.style.top = "50%";
-            // element.style.left = "50%";
-            // element.style.opacity = "1";
-
             that.appendChild(element);
 
             await setDelayMs(1);
@@ -217,32 +200,19 @@ class Cell {
             const leftDirection = this.#generateRandomValue(0, 1) ? "-" : "";
             let rotateValue = this.#generateRandomValue(5, 90);
 
-            // ********************* PERFORMANCE TEST *********************
-
             element.style.cssText += `transform: scale(1) rotate(${leftDirection}${rotateValue}deg); top: -${this.#generateRandomValue(
                 100,
                 300
             )}%; left: ${leftDirection}${leftValue}%; `;
-
-            // element.style.transform = `scale(1) rotate(${leftDirection}${rotateValue}deg)`;
-            // element.style.top = `-${this.#generateRandomValue(100, 300)}%`;
-            // element.style.left = `${leftDirection}${leftValue}%`;
-
             await setDelayMs(300);
 
             // set ending values and await
-            // ********************* PERFORMANCE TEST *********************
             element.style.cssText =
                 +`transition: all 0.5s; transform: scale(0) rotate(${leftDirection}${
                     rotateValue * 1.2
                 }deg); top: ${this.#generateRandomValue(400, 600)}%; left: ${leftDirection}${
                     leftValue * 1.2
                 }%; `;
-
-            // element.style.transition = "all .5s";
-            // element.style.transform = `scale(0) rotate(${leftDirection}${rotateValue * 1.2}deg)`;
-            // element.style.top = `${this.#generateRandomValue(400, 600)}%`;
-            // element.style.left = `${leftDirection}${leftValue * 1.2}%`;
 
             await setDelayMs(500);
             // clear div
@@ -266,11 +236,7 @@ class Cell {
         element.classList.add("game__cell--flag");
         that.appendChild(element);
         setTimeout(() => {
-            // ********************* PERFORMANCE TEST *********************
             element.style.cssText += "top: 50%; opacity: 1;";
-
-            // element.style.top = "50%";
-            // element.style.opacity = "1";
         }, 10);
     }
 

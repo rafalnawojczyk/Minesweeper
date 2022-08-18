@@ -31,6 +31,13 @@ class State {
     #clientWidth;
     #startTouch;
     #timeoutID;
+    #allCells;
+
+    // TODO: temporary
+
+    setAllCells(obj) {
+        this.#allCells = obj;
+    }
 
     getSettings() {
         const obj = this.deviceIsPhone() ? this.phoneDifficulty : this.difficulty;
@@ -101,10 +108,6 @@ class State {
         return cellsWithNumbers;
     }
 
-    getBombCells() {
-        return this.#bombCells;
-    }
-
     cordsHaveFlag(cords) {
         return this.#flagCords.includes(cords);
     }
@@ -112,7 +115,7 @@ class State {
     getElementsWithFlags() {
         const elementsWithFlag = this.#flagCords.map(cords => {
             if (!this.cordsHaveFlag(cords)) return;
-            return document.querySelector(`.game__cell--${cords}`);
+            return this.#allCells[cords];
         });
 
         return elementsWithFlag;
@@ -155,8 +158,8 @@ class State {
     }
 
     #setUnopenedCellsCounter(diff) {
-        const value =
-            this.difficulty[diff][0] * this.difficulty[diff][1] - this.difficulty[diff][2];
+        const settingsObj = this.deviceIsPhone() ? this.phoneDifficulty : this.difficulty;
+        const value = settingsObj[diff][0] * settingsObj[diff][1] - settingsObj[diff][2];
         this.#unopenedCellsCounter = value;
     }
 
@@ -197,6 +200,10 @@ class State {
 
     getMovesCounter() {
         return this.#movesCounter;
+    }
+
+    getAllCells() {
+        return this.#allCells;
     }
 
     setCellsNumbers(obj) {
