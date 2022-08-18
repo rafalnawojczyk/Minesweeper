@@ -1,4 +1,4 @@
-import { CONFETTI_COLORS } from "./config.js";
+import { CONFETTI_COLORS, PHONE_WIDTH } from "./config.js";
 import {
     makeConfetti,
     generateTextColor,
@@ -47,7 +47,10 @@ class Cell {
                 const coords = firstCords ? firstCords : bombCords[index];
                 const element = document.querySelector(`.game__cell--${coords}`);
 
-                makeConfetti(element, "big", colors, 0.4);
+                if (window.innerWidth > PHONE_WIDTH) {
+                    makeConfetti(element, "small", colors, 0.4);
+                }
+
                 element.classList.add("bomb");
                 element.style.setProperty("--bomb-color", colors[2]);
                 element.style.setProperty("--bomb-bg", colors[1]);
@@ -97,9 +100,9 @@ class Cell {
         this.#cellsWithNumbers.push(xyCord);
         element.style.setProperty("--color-text", generateTextColor(cellsNumbers[xyCord]));
         element.dataset.number = cellsNumbers[xyCord];
-        // dataset
+
         this.#cellsRevealed.push(xyCord);
-        makeConfetti(element, "small");
+        makeConfetti(element);
     }
 
     revealEmptyCell(that, cords, state) {
@@ -186,21 +189,24 @@ class Cell {
 
     async animateFlagDelete(that) {
         try {
-            const element = that.querySelector(".game__cell--flag")?.cloneNode(true);
-            if (!that.querySelector(".game__cell--flag")) return;
-            that.querySelector(".game__cell--flag").style.display = "none";
+            const flagElement = that.querySelector(".game__cell--flag");
+            const element = flagElement?.cloneNode(true);
+            if (!flagElement) return;
+            flagElement.style.display = "none";
 
             // set beggining values and show cloned element
+            // ********************* PERFORMANCE TEST *********************
+            element.style.cssText += `z-index: 10000; font-size: 1.7rem; position: absolute; transition: all 0.3s; transform: scale(1) rotate(0deg) translate(-50%, -50%); animation: none; top: 50%; left: 50%; opacity: 1;`;
             element.classList.remove(".game__cell--flag");
-            element.style.zIndex = "10000";
-            element.style.fontSize = "1.7rem";
-            element.style.position = "absolute";
-            element.style.transition = "all 0.3s";
-            element.style.transform = "scale(1) rotate(0deg) translate(-50%, -50%)";
-            element.style.animation = "";
-            element.style.top = "50%";
-            element.style.left = "50%";
-            element.style.opacity = "1";
+            // element.style.zIndex = "10000";
+            // element.style.fontSize = "1.7rem";
+            // element.style.position = "absolute";
+            // element.style.transition = "all 0.3s";
+            // element.style.transform = "scale(1) rotate(0deg) translate(-50%, -50%)";
+            // element.style.animation = "";
+            // element.style.top = "50%";
+            // element.style.left = "50%";
+            // element.style.opacity = "1";
 
             that.appendChild(element);
 
@@ -211,17 +217,32 @@ class Cell {
             const leftDirection = this.#generateRandomValue(0, 1) ? "-" : "";
             let rotateValue = this.#generateRandomValue(5, 90);
 
-            element.style.transform = `scale(1) rotate(${leftDirection}${rotateValue}deg)`;
-            element.style.top = `-${this.#generateRandomValue(100, 300)}%`;
-            element.style.left = `${leftDirection}${leftValue}%`;
+            // ********************* PERFORMANCE TEST *********************
+
+            element.style.cssText += `transform: scale(1) rotate(${leftDirection}${rotateValue}deg); top: -${this.#generateRandomValue(
+                100,
+                300
+            )}%; left: ${leftDirection}${leftValue}%; `;
+
+            // element.style.transform = `scale(1) rotate(${leftDirection}${rotateValue}deg)`;
+            // element.style.top = `-${this.#generateRandomValue(100, 300)}%`;
+            // element.style.left = `${leftDirection}${leftValue}%`;
 
             await setDelayMs(300);
 
             // set ending values and await
-            element.style.transition = "all .5s";
-            element.style.transform = `scale(0) rotate(${leftDirection}${rotateValue * 1.2}deg)`;
-            element.style.top = `${this.#generateRandomValue(400, 600)}%`;
-            element.style.left = `${leftDirection}${leftValue * 1.2}%`;
+            // ********************* PERFORMANCE TEST *********************
+            element.style.cssText =
+                +`transition: all 0.5s; transform: scale(0) rotate(${leftDirection}${
+                    rotateValue * 1.2
+                }deg); top: ${this.#generateRandomValue(400, 600)}%; left: ${leftDirection}${
+                    leftValue * 1.2
+                }%; `;
+
+            // element.style.transition = "all .5s";
+            // element.style.transform = `scale(0) rotate(${leftDirection}${rotateValue * 1.2}deg)`;
+            // element.style.top = `${this.#generateRandomValue(400, 600)}%`;
+            // element.style.left = `${leftDirection}${leftValue * 1.2}%`;
 
             await setDelayMs(500);
             // clear div
@@ -241,11 +262,15 @@ class Cell {
         const element = document.createElement("div");
 
         element.innerHTML = "&#128681;";
+
         element.classList.add("game__cell--flag");
         that.appendChild(element);
         setTimeout(() => {
-            element.style.top = "50%";
-            element.style.opacity = "1";
+            // ********************* PERFORMANCE TEST *********************
+            element.style.cssText += "top: 50%; opacity: 1;";
+
+            // element.style.top = "50%";
+            // element.style.opacity = "1";
         }, 10);
     }
 

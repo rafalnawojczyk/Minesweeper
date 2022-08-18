@@ -5,10 +5,21 @@ import Cell from "./js/cellView.js";
 import Statistics from "./js/statisticsView.js";
 import Score from "./js/scoreView";
 import { getCellCords, setDelayMs } from "./js/helpers.js";
-import { LONG_CLICK_MS, PHONE_WIDTH } from "./js/config.js";
+import { LONG_CLICK_MS } from "./js/config.js";
 
 // TODO: FLAGS COUNTER
 // CHECK FLAG COUNTER AND FIX IT
+
+// TODO:
+// on phones change font sizes, cuz its resizing grid
+
+// TODO:OPTIMIZATION:
+// try to reduce use of querySelector - maybe store all of the elements(game cells) in an array or object and acces it by it. Ojbect would be probably better, and it should have properties based on cords like 3x12 - which will reduce time and resources that are needed to find one element.
+
+// try to add multiple styles at once to an element
+
+// TODO:
+// mobiles cannot see the ending of game
 
 function mouseClickController(e) {
     e.preventDefault();
@@ -22,6 +33,7 @@ function touchStartController(e) {
     State.startTouchTimer();
     const timeoutID = setTimeout(() => rightKeyClickController.call(this), LONG_CLICK_MS);
     State.setTimeoutID(timeoutID);
+    if (State.isGameFinished()) finishedGameController();
 }
 function touchEndController(e) {
     if (State.endTouchTimer() < LONG_CLICK_MS) {
@@ -127,7 +139,7 @@ async function endGameController(cords) {
             deleteAllHandlers(cellElement);
 
             setTimeout(function () {
-                if (window.innerWidth < PHONE_WIDTH) {
+                if (State.deviceIsPhone()) {
                     Cell.addTouchHandler(skipEndAnimation);
                 } else {
                     Cell.addClickHandler(skipEndAnimation);
@@ -225,7 +237,7 @@ function gameInit(diff) {
     Grid.createBoard(...settings, diff);
     State.setCellsNumbers(Grid.getCellsNumbers());
     Statistics.printFlags(State.setFlagCounter(diff));
-    if (window.innerWidth < PHONE_WIDTH) {
+    if (State.deviceIsPhone()) {
         Cell.addTouchHandler(touchStartController, touchEndController);
     } else {
         Cell.addClickHandler(mouseClickController, middleKeyClickController);

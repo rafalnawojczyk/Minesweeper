@@ -3,9 +3,8 @@ export const CELL_WIDTH = { easy: 4, med: 3.5, hard: 2.8 };
 export const CELL_HEIGHT = { easy: 4, med: 3.5, hard: 2.8 };
 // export const CELL_WIDTH = { easy: 4, med: 3.5, hard: 3 };
 // export const CELL_HEIGHT = { easy: 4, med: 3.5, hard: 3 };
-export const CELL_FONT_SIZE = { easy: 3.5, med: 3, hard: 2.4 };
 
-export const LONG_CLICK_MS = 500;
+export const LONG_CLICK_MS = 200;
 
 export const PHONE_WIDTH = 640;
 

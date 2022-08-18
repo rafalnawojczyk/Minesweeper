@@ -33,12 +33,16 @@ class State {
     #timeoutID;
 
     getSettings() {
-        const obj = this.#clientWidth < PHONE_WIDTH ? this.phoneDifficulty : this.difficulty;
+        const obj = this.deviceIsPhone() ? this.phoneDifficulty : this.difficulty;
         return obj[this.#actualDifficulty];
     }
 
     setClientWidth(width) {
         this.#clientWidth = width;
+    }
+
+    deviceIsPhone() {
+        return this.#clientWidth < PHONE_WIDTH;
     }
 
     getScoreFromLocalStorage() {

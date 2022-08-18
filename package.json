@@ -2,9 +2,9 @@
     "name": "minesweeper",
     "version": "1.0.0",
     "description": "Minesweeper",
-    "main": "index.js",
     "scripts": {
-        "start": "parcel index.html"
+        "start": "parcel index.html",
+        "build": "parcel build index.html --public-url ./"
     },
     "author": "Rafal Nawojczyk",
     "license": "ISC",
@@ -20,6 +20,7 @@
         "postcss-cli": "^9.1.0"
     },
     "dependencies": {
-        "parcel": "^2.6.2"
+        "parcel": "^2.6.2",
+        "canvas-confetti": "^1.5.1"
     }
 }

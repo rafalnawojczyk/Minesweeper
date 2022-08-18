@@ -1,17 +1,23 @@
 import confetti from "canvas-confetti";
 import { CONFETTI_COLORS, TEXT_COLORS } from "./config.js";
+import model from "./model.js";
 
 export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], grav = 1) {
     // animate confetti
 
+    if (model.deviceIsPhone()) return;
+
     const amountOfParticles = amount === "small" ? 2 : 7;
     const scale = amount === "small" ? 1.6 : 2;
-    const tick = amount === "small" ? 100 : 200;
+    const tick = amount === "small" ? 150 : 200;
 
     const myCanvas = document.createElement("canvas");
-    myCanvas.style.position = "absolute";
-    myCanvas.style.zIndex = "5000";
-    myCanvas.style.pointerEvents = "none";
+    // ********************* PERFORMANCE TEST *********************
+    myCanvas.style.cssText += "position: absolute; z-index: 5000; pointer-events: none;";
+
+    // myCanvas.style.position = "absolute";
+    // myCanvas.style.zIndex = "5000";
+    // myCanvas.style.pointerEvents = "none";
     that.appendChild(myCanvas);
 
     const myConfetti = confetti.create(myCanvas, {
@@ -19,7 +25,7 @@ export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], 
         useWorker: true,
     });
     myConfetti({
-        particleCount: 7,
+        particleCount: amountOfParticles,
         spread: 30,
         startVelocity: 10,
         colors: color,
