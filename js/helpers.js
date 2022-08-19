@@ -1,6 +1,5 @@
 import confetti from "canvas-confetti";
 import { CONFETTI_COLORS, PHONE_WIDTH, TEXT_COLORS } from "./config.js";
-import model from "./model.js";
 
 export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], grav = 1) {
     let amountOfParticles = amount === "small" ? 2 : 7;
