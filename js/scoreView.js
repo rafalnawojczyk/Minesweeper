@@ -1,3 +1,5 @@
+import { PHONE_WIDTH } from "./config";
+
 class Score {
     #highscoreLabel = document.querySelector(".highscore__label");
     #actualScoreLabel = document.querySelector(".actual-score__label");
@@ -16,6 +18,8 @@ class Score {
 
     async toggleOverlayAndPopup() {
         try {
+            const summaryWidth = window.innerWidth < PHONE_WIDTH ? "--summary-width: 90vw;" : "";
+
             const overlay = this.#overlay;
             const popup = this.#popupWindow;
 
@@ -23,7 +27,7 @@ class Score {
                 this.#popupDisplayed = true;
 
                 overlay.style.cssText = `visibility: visible; opacity: 1;`;
-                popup.style.cssText = `pointer-events: auto; visibility: visible; opacity: 1;`;
+                popup.style.cssText = `${summaryWidth} pointer-events: auto; visibility: visible; opacity: 1;`;
 
                 return;
             }
@@ -31,7 +35,7 @@ class Score {
             this.#popupDisplayed = false;
 
             overlay.style.cssText = `visibility: hidden; opacity: 0;`;
-            popup.style.cssText = `pointer-events: none; visibility: hidden; opacity: 0;`;
+            popup.style.cssText = `${summaryWidth}pointer-events: none; visibility: hidden; opacity: 0;`;
 
             return;
         } catch (err) {

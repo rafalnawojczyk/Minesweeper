@@ -7,7 +7,7 @@ class Grid {
     #headerStyle = document.querySelector(".header").style;
     #body = document.querySelector("body").style;
     #container = document.querySelector(".container").style;
-    #summary = document.querySelector(".summary").style;
+
     #allCells = {};
     #cellsNumbers;
 
@@ -24,8 +24,6 @@ class Grid {
             // container should be fixed to top of the screen
 
             this.#container.cssText += `position: fixed; top: 0; left: 0; transform: translate(0,0); height: 100vh;`;
-
-            this.#summary.width = "85vw";
 
             this.#gameStyle.cssText += `position: absolute; left: 50%; top: ${this.#calcMobileTopMargin(
                 rows,

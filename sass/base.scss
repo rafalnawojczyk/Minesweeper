@@ -241,12 +241,13 @@ p {
 }
 
 .summary {
+    --summary-width: 20vw;
     pointer-events: none;
     visibility: hidden;
     opacity: 0;
 
     transition: all 1s;
-    width: 20vw;
+    width: var(--summary-width);
     margin-inline: auto;
     position: absolute;
     top: 50%;
