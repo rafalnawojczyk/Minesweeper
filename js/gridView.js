@@ -22,7 +22,6 @@ class Grid {
             cellWidth = cellHeight = Number(this.#calculateCellDimensions(columns, rows));
 
             // container should be fixed to top of the screen
-
             this.#container.cssText += `position: fixed; top: 0; left: 0; transform: translate(0,0); height: 100vh;`;
 
             this.#gameStyle.cssText += `position: absolute; left: 50%; top: ${this.#calcMobileTopMargin(

@@ -8,6 +8,9 @@ import { getCellCords, setDelayMs } from "./js/helpers.js";
 import { LONG_CLICK_MS } from "./js/config.js";
 
 // TODO:
+// if you are clicking fast enough, you can have showed a overlay and popup after reseting the game. fix this
+
+// TODO:
 // optimize confeti on phones. Think about adding smaller amount of confetti everywhere when its on phone, changing all things to reduce performance problems
 
 function mouseClickController(e) {
@@ -241,6 +244,7 @@ function gameInit(diff) {
     Cell.reset();
     Statistics.cleanTimer();
     State.setActualDifficulty(diff);
+    Score.printHighscore(State.getHighscore());
 
     const settings = State.getSettings();
 

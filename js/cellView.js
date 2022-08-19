@@ -143,7 +143,7 @@ class Cell {
         that.classList.add("clicked");
         that.style.setProperty("--color-text", generateTextColor(clickedCellValue));
         this.#cellsWithNumbers.push(cords);
-        makeConfetti(that);
+        makeConfetti(that, "small");
     }
 
     getCellsRevealed() {

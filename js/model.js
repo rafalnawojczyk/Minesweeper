@@ -33,7 +33,9 @@ class State {
     #timeoutID;
     #allCells;
 
-    // TODO: temporary
+    getHighscore() {
+        return this.#highScore[this.#actualDifficulty];
+    }
 
     setAllCells(obj) {
         this.#allCells = obj;
@@ -53,9 +55,10 @@ class State {
     }
 
     getScoreFromLocalStorage() {
-        const data = localStorage.getItem("highscore");
+        const data = localStorage.getItem("highscores");
         if (!data) return;
         this.#highScore = JSON.parse(data);
+        console.log(this.#highScore);
     }
 
     startTouchTimer() {
@@ -76,7 +79,7 @@ class State {
     }
 
     #saveToLocalStorage() {
-        localStorage.setItem("highscores", this.#highScore);
+        localStorage.setItem("highscores", JSON.stringify(this.#highScore));
     }
 
     checkForHighScore(score) {
