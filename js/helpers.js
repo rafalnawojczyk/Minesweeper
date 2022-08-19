@@ -1,5 +1,5 @@
 import confetti from "canvas-confetti";
-import { CONFETTI_COLORS, TEXT_COLORS } from "./config.js";
+import { CONFETTI_COLORS, PHONE_WIDTH, TEXT_COLORS } from "./config.js";
 import model from "./model.js";
 
 export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], grav = 1) {
@@ -7,12 +7,7 @@ export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], 
     let scale = amount === "small" ? 1.6 : 2;
     let tick = amount === "small" ? 150 : 200;
 
-    // TODO: WITHOUT THIS IT WAS LAGGING A LOT _ TEST IT MORE THOROUGHLY
-    if (model.deviceIsPhone()) {
-        amountOfParticles = 1;
-        scale = 1.5;
-        tick = 50;
-    }
+    if (window.innerWidth < PHONE_WIDTH) return;
 
     const myCanvas = document.createElement("canvas");
     myCanvas.style.cssText += "position: absolute; z-index: 5000; pointer-events: none;";
@@ -21,8 +16,7 @@ export const makeConfetti = function (that, amount, color = CONFETTI_COLORS[0], 
 
     const myConfetti = confetti.create(myCanvas, {
         resize: true,
-        // TODO: check this one below
-        useWorker: false,
+        useWorker: true,
     });
     myConfetti({
         particleCount: amountOfParticles,
