@@ -7,9 +7,6 @@ import Score from "./js/scoreView";
 import { getCellCords, setDelayMs } from "./js/helpers.js";
 import { LONG_CLICK_MS } from "./js/config.js";
 
-// TODO:
-// optimize confeti on phones. Think about adding smaller amount of confetti everywhere when its on phone, changing all things to reduce performance problems
-
 function mouseClickController(e) {
     e.preventDefault();
     // 1 - LMB, 3 - RMB
@@ -136,7 +133,6 @@ async function endGameController(cords) {
 
         const bombCords = State.getAllCellsWithBombs();
 
-        // Add skip animation handler to all cells
         setTimeout(function () {
             if (State.deviceIsPhone()) {
                 Cell.addAllTouchHandler(allCells, skipEndAnimation);
@@ -198,9 +194,6 @@ async function finishedGameController() {
             Cell.animateNumberFadeOut(cords, allCells);
             Grid.addWaterTo(cords, allCells);
         });
-
-        // COLOR ALL CELLS WITH BOMBS WITH THE SAME GREEN COLOR
-        // TODO: THINK ABOUT ADDING SOME FLOWERS TO ALL GREEN CELLS THAT ARE LEFT
 
         const bombCells = State.getAllCellsWithBombs();
 

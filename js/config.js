@@ -1,8 +1,5 @@
-// IN vh
 export const CELL_WIDTH = { easy: 4, med: 3.5, hard: 3 };
 export const CELL_HEIGHT = { easy: 4, med: 3.5, hard: 3 };
-// export const CELL_WIDTH = { easy: 4, med: 3.5, hard: 3 };
-// export const CELL_HEIGHT = { easy: 4, med: 3.5, hard: 3 };
 
 export const LONG_CLICK_MS = 200;
 
