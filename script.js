@@ -8,9 +8,6 @@ import { getCellCords, setDelayMs } from "./js/helpers.js";
 import { LONG_CLICK_MS } from "./js/config.js";
 
 // TODO:
-// if you are clicking fast enough, you can have showed a overlay and popup after reseting the game. fix this
-
-// TODO:
 // optimize confeti on phones. Think about adding smaller amount of confetti everywhere when its on phone, changing all things to reduce performance problems
 
 function mouseClickController(e) {
@@ -159,12 +156,10 @@ async function endGameController(cords) {
         }
 
         await Cell.blowBombs(allCells, bombCords, cords);
-        await setDelayMs(1000);
 
-        if (Score.isPopupDisplayed() || State.getMovesCounter() === 0) return;
+        if (Score.isPopupDisplayed() || State.getMovesCounter() <= 1) return;
 
-        Score.toggleOverlayAndPopup();
-        Score.addHandlerToBtn(restartGameController);
+        skipEndAnimation();
     } catch (err) {
         console.log(err);
     }

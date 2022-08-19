@@ -58,7 +58,6 @@ class State {
         const data = localStorage.getItem("highscores");
         if (!data) return;
         this.#highScore = JSON.parse(data);
-        console.log(this.#highScore);
     }
 
     startTouchTimer() {
