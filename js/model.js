@@ -14,7 +14,7 @@ class State {
         med: [11, 18, 35],
         hard: [15, 25, 75],
     };
-
+    #flagCordsQueue = [];
     #cellsNumbers;
     #movesCounter = 0;
     #flagCounter;
@@ -95,6 +95,18 @@ class State {
             if (this.#cellsNumbers[key] > 50) this.#bombCells.push(key);
         }
         return this.#bombCells;
+    }
+
+    flagCordsAreQueued(cords) {
+        return this.#flagCordsQueue.includes(cords);
+    }
+
+    addFlagCordsToQueue(cords) {
+        this.#flagCordsQueue.push(cords);
+    }
+    deleteCordsFromQueue(cords) {
+        const index = this.#flagCordsQueue.indexOf(cords);
+        this.#flagCordsQueue.splice(index, 1);
     }
 
     getAllCellsWithNumbers() {

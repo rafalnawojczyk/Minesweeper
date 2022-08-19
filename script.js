@@ -7,9 +7,6 @@ import Score from "./js/scoreView";
 import { getCellCords, setDelayMs } from "./js/helpers.js";
 import { LONG_CLICK_MS } from "./js/config.js";
 
-// TODO: FLAGS COUNTER
-// CHECK FLAG COUNTER AND FIX IT
-
 // TODO:
 // optimize confeti on phones. Think about adding smaller amount of confetti everywhere when its on phone, changing all things to reduce performance problems
 
@@ -77,6 +74,7 @@ function leftKeyClickController() {
 
         Cell.getFlagsToDelete().forEach(el => {
             State.deleteFlagCords(getCellCords(el));
+            Statistics.printFlags(State.increaseFlagCounter());
             Cell.animateFlagDelete(el);
         });
 
@@ -101,20 +99,29 @@ function middleKeyClickController(e) {
     if (e.which === 2) Board.highlightCellsAround(this, State.getAllCells());
 }
 
-function rightKeyClickController() {
-    const cords = this.classList[1].slice(12);
+async function rightKeyClickController() {
+    try {
+        const cords = this.classList[1].slice(12);
+        if (State.flagCordsAreQueued(cords)) return;
 
-    if (Cell.hasFlag(this) && State.cordsHaveFlag(cords)) {
-        Cell.animateFlagDelete(this);
-        State.deleteFlagCords(cords);
-        Statistics.printFlags(State.increaseFlagCounter());
-        return;
-    } else {
-        if (!State.getFlagsCounter()) return;
-        Cell.addFlag(this);
-        State.addFlagCords(cords);
-        Statistics.printFlags(State.decreaseFlagCounter());
-        return;
+        State.addFlagCordsToQueue(cords);
+
+        if (Cell.hasFlag(this) && State.cordsHaveFlag(cords)) {
+            Statistics.printFlags(State.increaseFlagCounter());
+            await Cell.animateFlagDelete(this);
+            State.deleteFlagCords(cords);
+            State.deleteCordsFromQueue(cords);
+            return;
+        } else {
+            if (!State.getFlagsCounter()) return;
+            Statistics.printFlags(State.decreaseFlagCounter());
+            State.addFlagCords(cords);
+            Cell.addFlag(this);
+            State.deleteCordsFromQueue(cords);
+            return;
+        }
+    } catch (err) {
+        console.log(err);
     }
 }
 
