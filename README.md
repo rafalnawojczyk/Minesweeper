@@ -1,5 +1,7 @@
 # Minesweeper game
 
+[SEE THIS PROJECT LIVE](https://rafalnawojczyk.pl/minesweeper/)
+
 ## Table of contents
 
 -   [General info](#general-info)
